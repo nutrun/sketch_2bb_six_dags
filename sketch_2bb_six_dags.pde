@@ -1,13 +1,20 @@
 Visual[] visuals = new Visual[] {
-  new Wiggle(),
+  new InAndOut(), 
+  new BoardsInLine(),
+  new BezierLissajus(),
   new WanderingInSpace(),
+  new Wiggle(), 
   new WavesOnSphere(),
-  new MemorySnake(),
-  new ColorSmoke(),
-  new PerlinNoise(),
-  new SpiroRose(),
-  new FoliageScroll(),
   new TriangleTimesTriangle(),
+  new Kolam(),
+  new MemorySnake(), 
+  new ColorSmoke(), 
+  new PerlinNoise(), 
+  new SpiroRose(), 
+  new FoliageScroll(),   
+  new SurfsUpBlue(), 
+  new DeformedLines(), 
+  new PerlinRainbow()
 };
 
 int visualIndex = 0;
@@ -15,6 +22,11 @@ Visual visual = visuals[0];
 
 void setup() {
   fullScreen();
+  // Try and restore defaults.
+  translate(width, height);
+  strokeWeight(1);
+  colorMode(RGB, 255);
+  rectMode(CORNER);
   visual.setup();
 }
 
@@ -61,6 +73,174 @@ abstract class Visual {
 }
 
 // Black and white
+
+//https://www.openprocessing.org/sketch/434617
+class InAndOut extends Visual {
+  float t=0.001;
+  void setup()
+  {
+    strokeWeight(3);
+    stroke(0);
+  }
+  
+  void draw()
+  {
+    background(240);
+    harom(1000, 920, 40, 460, 6, (sin(0.0005*millis()%(2*PI))+1)/2);
+  }
+
+  void harom(float ax, float ay, float bx, float by, int level, float ratio)
+  {
+    if (level!=0) {
+      float vx, vy, nx, ny, cx, cy;
+      vx=bx-ax;
+      vy=by-ay;
+      nx=cos(PI/3)*vx-sin(PI/3)*vy; 
+      ny=sin(PI/3)*vx+cos(PI/3)*vy; 
+      cx=ax+nx;
+      cy=ay+ny;
+      line(ax, ay, bx, by);
+      line(ax, ay, cx, cy);
+      line(cx, cy, bx, by);
+      harom(ax*ratio+cx*(1-ratio), ay*ratio+cy*(1-ratio), ax*(1-ratio)+bx*ratio, ay*(1-ratio)+by*ratio, level-1, ratio);
+    }
+  }
+
+  void mousePressed() {
+  }
+
+  void mouseReleased() {
+  }
+}
+
+//https://www.openprocessing.org/sketch/400636
+class BoardsInLine extends Visual {
+  /**
+   * boards in line
+   *
+   * @author aadebdeb
+   * @date 2017/01/26
+   */
+
+  void setup() {
+    rectMode(CENTER);
+    fill(255);
+    stroke(0);
+    strokeWeight(4);
+  }
+
+  void draw() {
+    background(0);
+    translate(width / 2, height / 2);
+    int num = 10;
+    float intervalX = map(mouseX, 0, width, 40, -40);
+    float intervalY = map(abs(mouseX - width / 2), 0, width / 2, 0, -20);
+    float rectX = 100;
+    float rectY = 200;
+    float tilt = map(mouseX, 0, width, -20, 20);
+    for (int i = num - 1; i > 0; i--) {
+      pushMatrix();
+      float rhytm = map(pow(abs(sin(frameCount * 0.03 - i * 0.3)), 50), 0, 1, 0, -50)
+        * map(abs(mouseX - width / 2), 0, width / 2, 0, 1);
+      translate(intervalX * (i - num / 2.0), intervalY * (i - num / 2.0) + rhytm);
+      beginShape();
+      vertex(-rectX / 2.0, -rectY / 2.0 + tilt);
+      vertex(rectX / 2.0, -rectY / 2.0 - tilt);
+      vertex(rectX / 2.0, rectY / 2.0 - tilt);
+      vertex(-rectX / 2.0, rectY / 2.0 + tilt);
+      endShape(CLOSE);
+      popMatrix();
+    }
+  }
+
+  void mousePressed() {
+  }
+
+  void mouseReleased() {
+  }
+}
+
+//https://www.openprocessing.org/sketch/445137
+class BezierLissajus extends Visual {
+  // Forked from Lali Barriere (openprocessing user 1075). Not my original work.
+  float  xA, yA, xB, yB, x1, y1, x2, y2;
+
+  float sx, sy;
+
+  float angle;
+  float speed;
+  float radi;
+
+  float c, s;
+
+  void setup() {
+    background(255);
+    smooth();
+
+    sx = random(5.0);
+    sy = random(5.0);
+
+    angle = 0.0;
+    speed = 0.01;
+    radi = 300.0;
+    xA = 20;
+    yA = height/2;
+    xB = width-20;
+    yB = height/2;
+  }
+
+  void draw() {
+
+    // dues corbes de lissajus serveixen de punts de control
+    c = cos(angle);
+    s = sin(angle/sy);
+    // c=0;s=0;
+
+    x1 = width/3+c*radi;
+    y1 = height/2+s*radi;
+
+    x2 = 2*width/3 + cos(angle/sx)*radi;
+    y2 = height/2 + sin(angle)*radi;
+    //  y2 = y1 + tan(angle*sy)*radi;
+
+    // pintem la corba de bezier
+    noFill();
+    stroke(0, 10);
+    bezier(xA, yA, x1, y1, x2, y2, xB, yB);
+
+    // fem un pas
+    angle+=speed;
+  }
+
+  void neteja() {
+    background(255);
+  }
+
+  void keyPressed() {
+    switch(key) {
+      case('1'):
+      neteja();
+      sx=5.0;
+      sy=random(1);
+      break;
+      case('2'):
+      neteja();
+      sx=random(1);
+      sy=2.0;
+      break;
+    default:
+      neteja();
+      sx = random(5.0);
+      sy=random(5.0);
+    }
+  }
+
+  void mousePressed() {
+  }
+
+  void mouseReleased() {
+  }
+}
 
 // https://www.openprocessing.org/sketch/299679
 class Wiggle extends Visual {
@@ -140,7 +320,6 @@ class WanderingInSpace extends Visual {
       p[i] = new Particle();
       p[i].o = random(1, random(1, width/p[i].n));
     }
-    size(1440, 900);
     diagonal = (int)sqrt(width*width + height * height)/2;
     background(0);
     noStroke();
@@ -227,6 +406,7 @@ class WavesOnSphere extends Visual {
 
   void setup() {
     background(0, 0, 0) ;
+    strokeWeight(0.75);
     noSmooth() ;
     stroke(255, 255, 255) ;
     fill(50, 50, 50) ;
@@ -796,5 +976,446 @@ class SpiroRose extends Visual {
 
   void mouseReleased() {
     drawMe = true;
+  }
+}
+
+// https://www.openprocessing.org/sketch/298646
+class SurfsUpBlue extends Visual {
+  // Pixel-sized particles version, of 'surfs_up'.
+  // Particles are now directly noise driven omitting the flow field.
+  // Array[], particle, pixel, noise()
+  // Mouse click to reset, mouseX adjusts background clear.
+
+  Particle[] particles;
+  float alpha;
+
+  void setup() {
+    background(0);
+    noStroke();
+    setParticles();
+  }
+
+  void draw() {
+    frameRate(20);
+    alpha = map(mouseX, 0, width, 5, 35);
+    fill(0, alpha);
+    rect(0, 0, width, height);
+
+    loadPixels();
+    for (Particle p : particles) {
+      p.move();
+    }
+    updatePixels();
+  }
+
+  void setParticles() {
+    particles = new Particle[6000];
+    for (int i = 0; i < 6000; i++) { 
+      float x = random(width);
+      float y = random(height);
+      float adj = map(y, 0, height, 255, 0);
+      int c = color(40, adj, 255);
+      particles[i]= new Particle(x, y, c);
+    }
+  }
+
+  void mousePressed() {
+    setParticles();
+  }
+
+  void mouseReleased() {
+  }
+
+  class Particle {
+    float posX, posY, incr, theta;
+    color  c;
+
+    Particle(float xIn, float yIn, color cIn) {
+      posX = xIn;
+      posY = yIn;
+      c = cIn;
+    }
+
+    public void move() {
+      update();
+      wrap();
+      display();
+    }
+
+    void update() {
+      incr +=  .008;
+      theta = noise(posX * .006, posY * .004, incr) * TWO_PI;
+      posX += 2 * cos(theta);
+      posY += 2 * sin(theta);
+    }
+
+    void display() {
+      if (posX > 0 && posX < width && posY > 0  && posY < height) {
+        pixels[(int)posX + (int)posY * width] =  c;
+      }
+    }
+
+    void wrap() {
+      if (posX < 0) posX = width;
+      if (posX > width ) posX =  0;
+      if (posY < 0 ) posY = height;
+      if (posY > height) posY =  0;
+    }
+  }
+}
+
+// https://www.openprocessing.org/sketch/296103
+class Kolam extends Visual {
+  int tsize = 41, // tile size
+    margin = 5, // margin size
+    tnumber = 9;  // number of points (lager row) 
+
+  int[][] link, // connections
+    nlink;  // next connections
+
+  float idx;  // index used to interpolate between old and new connections
+
+  PGraphics pg;  // PGraphics used to draw the kolam
+  color bgcolor;  // background color
+
+
+  /*===========================*/
+
+
+  void setup() {
+    bgcolor = color(random(50), random(50), random(50));
+
+    pg = createGraphics(tsize*tnumber + 2*margin, tsize*tnumber + 2*margin);
+
+    link = new int[tnumber + 1][tnumber + 1];
+    nlink = new int[tnumber + 1][tnumber + 1]; 
+
+    for (int i = 0; i < link.length; i++) {
+      for (int j = 0; j < link[0].length; j++) {
+        link[i][j] = nlink[i][j] = 1;
+      }
+    }
+
+    configTile();
+
+    background(bgcolor);
+  }
+
+
+  /*===========================*/
+
+
+  void draw() {
+
+    if (idx <= 1)  drawTile();  //draw a new tile each frame while it's not entirely updated 
+
+    translate(width/2, height/2);
+    rotate(QUARTER_PI);  
+
+    imageMode(CENTER);
+    image(pg, 0, 0);
+  }
+
+
+  /*===========================*/
+
+
+  void mousePressed() {
+    configTile();
+  }
+
+  void mouseReleased() {
+  }
+
+  /*===========================*/
+
+
+  void configTile() {
+
+    idx = 0;  // reset index
+
+    // update ancient links
+    for (int i = 0; i < link.length; i++) {
+      for (int j = 0; j < link[0].length; j++) {
+        link[i][j] = nlink[i][j];
+      }
+    }
+
+
+    // create new links
+    float limit = random(0.4, 0.7);  // choose frequency of conections randomly
+
+    for (int i = 0; i < nlink.length; i++) {
+      for (int j = i; j < nlink[0].length/2; j++) {
+
+        int l = 0;      
+        if (random(1) > limit)  l = 1;
+
+        nlink[i][j] = l;  // left-top
+        nlink[i][nlink[0].length - j - 1] = l;  // left-bottom
+
+        nlink[j][i] = l;  // top-left
+        nlink[nlink[0].length - j - 1][i]  = l;  // top-right
+
+        nlink[nlink.length - 1 - i][j] = l;  // right-top
+        nlink[nlink.length - 1 - i][nlink[0].length - j - 1] = l;  // right-top
+
+        nlink[j][nlink.length - 1 - i] = l;  // bottom-left
+        nlink[nlink[0].length - 1 - j][nlink.length - 1 - i] = l;  // bottom-right
+      }
+    }
+  }
+
+
+  /*===========================*/
+
+
+  void drawTile() {
+    pg.beginDraw();
+
+    pg.background(bgcolor);
+    pg.noFill();
+    pg.stroke(255);
+    pg.strokeWeight(5);
+
+    for (int i = 0; i < tnumber; i++) {
+      for (int j = 0; j < tnumber; j++) {
+        if ((i+j)%2 == 0) {
+
+          float top_left = tsize/2 * lerp(link[i][j], nlink[i][j], idx);
+          float top_right = tsize/2 * lerp(link[i + 1][j], nlink[i + 1][j], idx);
+          float bottom_right = tsize/2 * lerp(link[i + 1][j + 1], nlink[i + 1][j + 1], idx);
+          float bottom_left = tsize/2 * lerp(link[i][j + 1], nlink[i][j + 1], idx);
+
+          pg.rect(i*tsize + margin, j*tsize + margin, tsize, tsize, top_left, top_right, bottom_right, bottom_left);          
+          pg.point(i*tsize + tsize/2 + margin, j*tsize+tsize/2 + margin);
+        }
+      }
+    }
+
+    pg.endDraw();
+
+    // update index
+    idx += 0.02;
+    idx = constrain(idx, 0, 1);
+  }
+}
+
+// https://www.openprocessing.org/sketch/376645
+class DeformedLines extends Visual {
+  int nLines = 50;
+  Line[] l;
+  Particle[] attractors;
+
+
+  /*=======================*/
+
+
+  void setup() {
+    colorMode(HSB); 
+    strokeWeight(1.5);
+    noFill();
+
+    initialize();
+  }
+
+
+  /*=======================*/
+
+
+  void draw() {
+    background(0);
+
+    // move attractors
+    attractors[0].update();  
+    attractors[1].update();
+
+    // interact lines with attractors
+    float radius = 75*cos(frameCount/150.);
+    for (int i = 0; i < l.length; i++) {
+      l[i].interact(radius, attractors[0].pos.x, attractors[0].pos.y);
+      l[i].interact(-radius, attractors[1].pos.x, attractors[1].pos.y);
+      l[i].display();  // display lines
+    }
+  }
+
+
+  /*=======================*/
+
+  void initialize() {
+    // Create Lines
+    float c0 = random(255);
+    float c1 = random(255);
+    l = new Line[nLines];
+    for (int i = 0; i < l.length; i++) {
+      float col = lerp(c0, c1, float(i)/l.length);
+      l[i] = new Line(5 + 10*i, col);
+    }
+
+    // Create Attractors
+    attractors = new Particle[2];
+    for (int i = 0; i < attractors.length; i++) {
+      attractors[i] = new Particle(random(width), random(height));
+      float angle = random(TWO_PI);
+      attractors[i].vel.set(cos(angle), sin(angle), 0);
+    }
+  }
+
+
+  /*=======================*/
+
+
+  void mousePressed() {
+    initialize();
+  }
+
+  void mouseReleased() {
+  }
+
+  /*=======================*/
+
+
+  class Line {
+    ArrayList<Particle> p;
+    color col;
+    int nPoints = 100;
+
+    Line(int y, float c) {
+      p = new ArrayList<Particle>();
+      for (int i = 0; i < nPoints; i++) {
+        p.add(new Particle(2+5*i, y));
+      }
+
+      col = color(c, 100, 255);
+    }
+
+    /*-------*/
+
+    void display() {  // display line
+      stroke(col);
+      beginShape();
+      for (int i = 0; i < p.size(); i++) {
+        curveVertex(p.get(i).pos.x, p.get(i).pos.y);
+      }
+      endShape();
+    }
+
+    /*-------*/
+
+    void interact(float radius, float mx, float my) {  // interact line with attractor
+      for (int i = 0; i < p.size(); i++) {
+        p.get(i).interact(radius, mx, my);
+      }
+
+      //change size of the line when necessary
+      for (int i = 0; i < p.size()-1; i++) {
+        float d = dist(p.get(i).pos.x, p.get(i).pos.y, p.get(i+1).pos.x, p.get(i+1).pos.y);
+        if (d > 5) {  // add a new point when two neighbor points are too far apart
+          float x = (p.get(i).pos.x + p.get(i+1).pos.x) / 2;
+          float y = (p.get(i).pos.y + p.get(i+1).pos.y) / 2;
+          p.add(i+1, new Particle(x, y));
+        } else if (d < 1) {  // remove a point when 2 neighbor points are too close
+          p.remove(i);
+        }
+      }
+    }
+  }
+
+
+  /*=======================*/
+
+
+  class Particle {
+    PVector pos, vel, acc;
+
+    Particle(float x, float y) {
+      pos = new PVector(x, y, 0);
+      vel = new PVector(0, 0, 0);
+      acc = new PVector(0, 0, 0);
+    }
+
+    /*-------*/
+
+    void interact(float r0, float x, float y) {  // interact points with attractors
+      float sign = r0/abs(r0);
+      r0 = abs(r0);
+
+      float r = dist(pos.x, pos.y, x, y);
+      float angle = atan2(pos.y-y, pos.x-x);
+
+      if (r <= r0) {
+        float radius = 0.5*sign*(r0-r)/r0;
+        vel.set(radius*cos(angle), radius*sin(angle));
+      } else {
+        vel.set(0, 0);
+      }
+
+      pos.add(vel);
+    }
+
+    /*-------*/
+
+    void update() {  // move attractors
+      //change direction sometimes
+      if (random(1) > 0.97) {
+        float angle = random(-PI, PI);
+        acc.set(cos(angle), sin(angle), 0);
+
+        float mod = PVector.angleBetween(acc, vel);
+        mod = map(mod, 0, PI, 0.1, 0.001);
+        acc.mult(mod);
+      }
+
+      // update
+      vel.add(acc);
+      vel.limit(1.5); 
+      pos.add(vel);
+
+      // check edges
+      pos.x = (pos.x + width)%width;
+      pos.y = (pos.y + height)%height;
+    }
+  }
+}
+
+// https://www.openprocessing.org/sketch/493205
+class PerlinRainbow extends Visual {
+  int N_THREADS = 50;
+
+  void setup() {
+    //size(600, 600);
+    fullScreen();
+
+    background(255);
+    noFill();
+    stroke(255);
+    colorMode(HSB, 360, 100, 100);
+  }
+
+  void draw() {
+    fill(270, 0, 100, 8);
+    noStroke();
+    rect(0, 0, width, height);
+    noFill();
+    strokeWeight(2);
+
+    for (int i = 0; i < N_THREADS; i++) {
+      float hue = map(i, 0, N_THREADS, 0, 360);
+      stroke(hue, 100, 100, 128);
+
+      beginShape();
+      for (int x = -10; x < width + 11; x += 10) {
+        float n = noise(x * 0.001, frameCount * 0.01, i * 0.02);
+        float y = map(n, 0, 1, 0, height);
+        curveVertex(x, y);
+      }
+      endShape();
+    }
+  }
+
+  void mousePressed() {
+  }
+
+  void mouseReleased() {
   }
 }
