@@ -18,6 +18,7 @@ Visual[] visuals = new Visual[] {
 };
 
 int visualIndex = 0;
+PImage pointer = createImage(2,2,RGB);
 Visual visual = visuals[0];
 
 void setup() {
@@ -27,6 +28,14 @@ void setup() {
   strokeWeight(1);
   colorMode(RGB, 255);
   rectMode(CORNER);
+  
+  // setup a subtle pointer
+  pointer.loadPixels();
+  for (int i = 0; i < pointer.pixels.length; i++) {
+    pointer.pixels[i] = color(127,127,127); 
+  }
+  cursor(pointer);
+  
   visual.setup();
 }
 
