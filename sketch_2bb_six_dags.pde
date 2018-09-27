@@ -1384,16 +1384,14 @@ class PerlinRainbow extends Visual {
 
   void setup() {
     //size(600, 600);
-    fullScreen();
-
-    background(255);
+    background(0);
     noFill();
     stroke(255);
     colorMode(HSB, 360, 100, 100);
   }
 
   void draw() {
-    fill(270, 0, 100, 8);
+    //fill(270, 0, 100, 8);
     noStroke();
     rect(0, 0, width, height);
     noFill();
